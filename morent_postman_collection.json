@@ -1,0 +1,251 @@
+{
+  "info": {
+    "_postman_id": "morent-car-rental-api-v1",
+    "name": "Morent Car Rental API",
+    "description": "Postman Collection for testing all Morent Car Rental platform endpoints including Authentication, Seed, and Car Fleet APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "carId",
+      "value": "6702951b14736f890d79e123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Database Seed",
+      "item": [
+        {
+          "name": "Seed Vehicle Fleet (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/seed",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "seed"]
+            },
+            "description": "Seeds 50 realistic Turkish-translated performance, luxury, and daily vehicles into MongoDB with prices in Turkish Liras (₺)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alperen Buğra\",\n  \"email\": \"alperen@morent.com\",\n  \"password\": \"MorentPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Registers a new user with email, name, and bcrypt hashed password."
+          },
+          "response": []
+        },
+        {
+          "name": "Get NextAuth CSRF Token (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/csrf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "csrf"]
+            },
+            "description": "Fetches CSRF token required for manual NextAuth credentials signIn."
+          },
+          "response": []
+        },
+        {
+          "name": "Get NextAuth Providers (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "providers"]
+            },
+            "description": "Returns configured NextAuth authentication providers (Credentials, Google)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Session (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/session",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "session"]
+            },
+            "description": "Returns current logged in user session."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cars (Fleet)",
+      "item": [
+        {
+          "name": "List All Cars (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars?page=1&limit=8",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "8"
+                }
+              ]
+            },
+            "description": "Retrieves the vehicle fleet with page and limit pagination metadata."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Cars by Name / Brand",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars?search=Porsche",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Porsche"
+                }
+              ]
+            },
+            "description": "Case-insensitive text search by car brand or model name."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Cars (Category & Capacity)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars?category=Sport,Electric&capacity=2,4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Sport,Electric"
+                },
+                {
+                  "key": "capacity",
+                  "value": "2,4"
+                }
+              ]
+            },
+            "description": "Filters vehicles by category and seating capacity."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Cars (Transmission, Fuel & Max Price)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars?transmission=Otomatik&fuelType=Elektrik,Benzin&maxPrice=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars"],
+              "query": [
+                {
+                  "key": "transmission",
+                  "value": "Otomatik"
+                },
+                {
+                  "key": "fuelType",
+                  "value": "Elektrik,Benzin"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Filters vehicles by Turkish transmission type, Turkish fuel type, and maximum daily price."
+          },
+          "response": []
+        },
+        {
+          "name": "Sort Cars (Price Ascending)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars?sortBy=price_asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars"],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "price_asc"
+                }
+              ]
+            },
+            "description": "Sorts vehicles by price from lowest to highest. Other options: price_desc, newest, popular."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Car Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cars/{{carId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cars", "{{carId}}"]
+            },
+            "description": "Fetches complete technical specifications and amenity details for a single car by its MongoDB ObjectId."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,36 +1,186 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚗 MORENT – Araç Kiralama Platformu
 
-## Getting Started
+Next.js 16 (App Router), MongoDB ve Stripe ile geliştirilmiş full-stack araç kiralama uygulaması. Kullanıcılar araç filosunu filtreleyerek inceleyebilir, tarih ve lokasyon seçerek rezervasyon yapabilir, Stripe üzerinden güvenli ödeme gerçekleştirebilir ve geçmiş siparişlerini görüntüleyebilir.
 
-First, run the development server:
+## Ekran Görüntüsü
+
+![](./rent.gif)
+
+## ✨ Özellikler
+
+- 🔐 **Kimlik Doğrulama** – E-posta/şifre ile kayıt & giriş, opsiyonel Google OAuth (NextAuth, JWT oturum)
+- 🚘 **Araç Kataloğu** – Arama, kategori, koltuk sayısı, vites, yakıt türü ve fiyata göre filtreleme; sıralama ve sayfalama
+- 📄 **Araç Detay Sayfası** – Galeri, teknik özellikler ve rezervasyon formu
+- 📅 **Rezervasyon** – Alış/iade lokasyonu, tarih ve saat seçimi, otomatik gün ve tutar hesaplama
+- 💳 **Stripe Ödeme** – Stripe Checkout entegrasyonu, webhook ile sipariş durumunun güncellenmesi
+- 🧾 **Siparişlerim** – Kullanıcıya ait tüm siparişlerin durum bilgisiyle listelenmesi
+- ✅ **Başarılı / İptal Sayfaları** – Ödeme sonrası sipariş özeti
+- 🌱 **Seed Endpoint'i** – Örnek araç verileriyle veritabanını tek istekle doldurma
+
+## 🛠️ Kullanılan Teknolojiler
+
+| Alan             | Teknoloji                                                     |
+| ---------------- | ------------------------------------------------------------- |
+| Framework        | [Next.js 16](https://nextjs.org) (App Router, Route Handlers) |
+| Arayüz           | React 19, Tailwind CSS 4, Lucide React, Material Symbols      |
+| Veritabanı       | MongoDB + Mongoose                                            |
+| Kimlik Doğrulama | NextAuth.js (Credentials & Google), bcryptjs                  |
+| Ödeme            | Stripe Checkout & Webhooks                                    |
+| Dil              | TypeScript                                                    |
+
+## 📁 Proje Yapısı
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/            # NextAuth ve kayıt endpoint'leri
+│   │   ├── cars/            # Araç listeleme ve detay
+│   │   ├── checkout/        # Stripe ödeme oturumu oluşturma
+│   │   ├── orders/          # Kullanıcı siparişleri ve sipariş detay/güncelleme
+│   │   ├── seed/            # Örnek veri yükleme
+│   │   └── webhook/         # Stripe webhook
+│   ├── cars/                # Araç kataloğu ve detay sayfaları
+│   ├── orders/              # Siparişlerim sayfası
+│   ├── login/ register/     # Giriş ve kayıt sayfaları
+│   ├── success/ cancel/     # Ödeme sonuç sayfaları
+│   └── page.tsx             # Ana sayfa
+├── components/              # Arayüz bileşenleri (cars, home, layout, providers)
+├── lib/                     # DB bağlantısı, auth ayarları, yardımcı fonksiyonlar
+└── models/                  # Mongoose modelleri (Car, User, Order)
+```
+
+## 🚀 Kurulum
+
+### Gereksinimler
+
+- Node.js 20+
+- MongoDB (yerel kurulum veya [MongoDB Atlas](https://www.mongodb.com/atlas))
+- [Stripe](https://stripe.com) hesabı (test modu yeterlidir)
+
+### 1. Projeyi klonlayın
+
+```bash
+git clone https://github.com/<kullanici-adi>/car-rental.git
+cd car-rental
+```
+
+### 2. Bağımlılıkları yükleyin
+
+```bash
+npm install
+```
+
+### 3. Ortam değişkenlerini ayarlayın
+
+`.env.example` dosyasını `.env.local` olarak kopyalayın ve değerleri doldurun:
+
+```bash
+cp .env.example .env.local
+```
+
+| Değişken                     | Açıklama                                                              | Zorunlu |
+| ---------------------------- | --------------------------------------------------------------------- | ------- |
+| `MONGODB_URI`                | MongoDB bağlantı adresi                                               | ✅      |
+| `NEXTAUTH_SECRET`            | JWT imzalama anahtarı (`openssl rand -base64 32` ile üretebilirsiniz) | ✅      |
+| `NEXTAUTH_URL`               | Uygulamanın adresi (örn. `http://localhost:3000`)                     | ✅      |
+| `NEXT_PUBLIC_APP_URL`        | Stripe yönlendirmeleri için uygulama adresi                           | ✅      |
+| `STRIPE_SECRET_KEY`          | Stripe gizli anahtarı (`sk_test_...`)                                 | ✅      |
+| `GOOGLE_CLIENT_ID`           | Google OAuth istemci ID'si                                            | ❌      |
+| `GOOGLE_CLIENT_SECRET`       | Google OAuth istemci anahtarı                                         | ❌      |
+| `NEXT_PUBLIC_IMAGIN_API_KEY` | Araç görselleri için Imagin Studio API anahtarı                       | ❌      |
+
+> Google değişkenleri tanımlanmazsa Google ile giriş seçeneği otomatik olarak devre dışı kalır.
+
+### 4. Geliştirme sunucusunu başlatın
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uygulama [http://localhost:3000](http://localhost:3000) adresinde çalışacaktır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Örnek verileri yükleyin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Veritabanını örnek araçlarla doldurmak için şu adrese bir istek atın:
 
-## Learn More
+```bash
+curl -X POST http://localhost:3000/api/seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+> ⚠️ Bu işlem mevcut tüm araç kayıtlarını silip yeniden oluşturur.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 6. Stripe webhook'unu yerelde dinleyin
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ödeme sonrası sipariş durumunun güncellenmesi için [Stripe CLI](https://docs.stripe.com/stripe-cli) ile webhook olaylarını yerel sunucuya yönlendirin:
 
-## Deploy on Vercel
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhook
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Test ödemelerinde `4242 4242 4242 4242` kart numarasını, ileri bir tarihi ve herhangi bir CVC kodunu kullanabilirsiniz.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📡 API Endpoint'leri
+
+| Metot          | Endpoint                  | Açıklama                                                      | Yetki     |
+| -------------- | ------------------------- | ------------------------------------------------------------- | --------- |
+| `POST`         | `/api/auth/register`      | Yeni kullanıcı kaydı                                          | –         |
+| `*`            | `/api/auth/[...nextauth]` | NextAuth giriş/çıkış işlemleri                                | –         |
+| `GET`          | `/api/cars`               | Araçları filtreleme, sıralama ve sayfalama ile listeler       | –         |
+| `GET`          | `/api/cars/:id`           | Araç detayını getirir                                         | –         |
+| `POST`         | `/api/checkout`           | Sipariş oluşturur ve Stripe ödeme oturumu başlatır            | 🔒 Oturum |
+| `GET`          | `/api/orders`             | Giriş yapmış kullanıcının siparişlerini listeler              | 🔒 Oturum |
+| `GET`          | `/api/orders/:id`         | Sipariş detayını getirir (ödeme durumunu Stripe ile doğrular) | –         |
+| `PATCH`        | `/api/orders/:id`         | Sipariş durumunu günceller                                    | –         |
+| `POST`         | `/api/webhook`            | Stripe ödeme olaylarını işler                                 | Stripe    |
+| `GET` / `POST` | `/api/seed`               | Örnek araç verilerini yükler                                  | –         |
+
+### `/api/cars` sorgu parametreleri
+
+| Parametre       | Örnek                                          | Açıklama              |
+| --------------- | ---------------------------------------------- | --------------------- |
+| `page`, `limit` | `page=1&limit=8`                               | Sayfalama             |
+| `search`        | `search=bmw`                                   | Marka/model araması   |
+| `category`      | `category=Sport,SUV`                           | Kategori filtresi     |
+| `capacity`      | `capacity=2,4`                                 | Koltuk sayısı         |
+| `transmission`  | `transmission=Otomatik`                        | Vites türü            |
+| `fuelType`      | `fuelType=Elektrik`                            | Yakıt türü            |
+| `maxPrice`      | `maxPrice=5000`                                | Maksimum günlük fiyat |
+| `sortBy`        | `popular`, `price_asc`, `price_desc`, `newest` | Sıralama              |
+
+Tüm endpoint'leri denemek için projedeki [`morent_postman_collection.json`](./morent_postman_collection.json) dosyasını Postman'e içe aktarabilirsiniz.
+
+## 🔄 Ödeme Akışı
+
+```mermaid
+sequenceDiagram
+    participant K as Kullanıcı
+    participant A as Next.js API
+    participant S as Stripe
+    participant DB as MongoDB
+
+    K->>A: POST /api/checkout
+    A->>DB: Sipariş oluştur (pending)
+    A->>S: Checkout oturumu oluştur
+    S-->>K: Ödeme sayfasına yönlendir
+    K->>S: Ödeme yap
+    S->>A: Webhook (checkout.session.completed)
+    A->>DB: Sipariş durumu → paid
+    S-->>K: /success?orderId=... sayfasına yönlendir
+```
+
+Sipariş durumları: `pending` (ödeme bekleniyor) · `paid` (ödendi) · `completed` (tamamlandı) · `cancelled` (iptal / süresi doldu)
+
+## 📜 Komutlar
+
+| Komut           | Açıklama                       |
+| --------------- | ------------------------------ |
+| `npm run dev`   | Geliştirme sunucusunu başlatır |
+| `npm run build` | Production derlemesi oluşturur |
+| `npm run start` | Production sunucusunu başlatır |
+| `npm run lint`  | ESLint kontrolü yapar          |
+
+## 📄 Lisans
+
+Bu proje eğitim amaçlı geliştirilmiştir.
